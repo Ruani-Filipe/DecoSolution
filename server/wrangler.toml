@@ -3,14 +3,14 @@ name = "airlines"
 main = "main.ts"
 compatibility_date = "2025-06-17"
 compatibility_flags = [ "nodejs_compat" ]
-scope = "/users/6d886c8f-9312-44d9-8028-fe9e6a89d2ca"
+scope = "ruani-camp-airlines"
 
 [assets]
 directory = "./view-build"
 binding = "ASSETS"
 
 [deco]
-workspace = "/users/6d886c8f-9312-44d9-8028-fe9e6a89d2ca"
+workspace = "ruani-camp-airlines"
 bindings = []
 enable_workflows = true
 local = false
