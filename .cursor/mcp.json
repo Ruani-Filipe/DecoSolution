@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "airlines": {
+      "type": "http",
+      "url": "https://localhost-64a1f743.deco.host/mcp"
+    }
+  }
+}
