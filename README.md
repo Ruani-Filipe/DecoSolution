@@ -1,133 +1,128 @@
-# Airlines MCP Server
+# Airlines Management System
 
-Este é um servidor MCP (Model Context Protocol) para gerenciamento de dados de companhias aéreas, construído com Deco.chat, Cloudflare Workers e React.
+A comprehensive airline passenger management system built with Deco MCP server and React frontend.
 
-## 🚀 Funcionalidades
+## Features
 
-### Tools Disponíveis
+- **Passenger Management**: Import, view, and manage passenger data
+- **CSV Import**: Bulk import passenger data from CSV files
+- **Database Operations**: Clear database and populate with test data
+- **Filtering**: Search passengers by various criteria
+- **Modern UI**: Built with React, Tailwind CSS, and shadcn/ui
 
-#### 1. **POPULATE_TEST_DATA**
-- **Descrição**: Popula o banco de dados com dados de teste de passageiros
-- **Parâmetros**: Nenhum
-- **Uso**: Execute esta tool primeiro para inserir dados de teste no banco
+## Database Schema
 
-#### 2. **GET_PASSENGERS**
-- **Descrição**: Retorna dados de passageiros do banco de dados com filtros opcionais
-- **Parâmetros**:
-  - `flightNumber` (opcional): Filtrar por número do voo
-  - `departureCity` (opcional): Filtrar por cidade de partida
-  - `arrivalCity` (opcional): Filtrar por cidade de chegada
-  - `ticketClass` (opcional): Filtrar por classe da passagem
-  - `status` (opcional): Filtrar por status
-  - `limit` (opcional): Limitar número de resultados
+The system uses a comprehensive passenger database with the following structure:
 
-#### 3. **GET_PASSENGER_STATS**
-- **Descrição**: Retorna estatísticas sobre os passageiros no banco
-- **Parâmetros**: Nenhum
-- **Retorna**: Contagem total, distribuição por classe, status, voo e preço médio
+### Passengers Table
+- `id` - Primary key
+- `firstName` - Passenger's first name
+- `lastName` - Passenger's last name
+- `email` - Contact email
+- `nationality` - Passenger nationality
+- `dateOfBirth` - Date of birth
+- `flightNumber` - Flight identifier
+- `departureCity` - Departure city
+- `arrivalCity` - Arrival city
+- `departureDate` - Flight departure date
+- `ticketClass` - Ticket class (economy, business, first)
+- `price` - Ticket price
+- `status` - Booking status
+- `distance` - Flight distance in kilometers
+- `createdAt` - Record creation timestamp
 
-#### 4. **IMPORT_PASSENGERS_FROM_CSV**
-- **Descrição**: Importa dados de passageiros de um arquivo CSV
-- **Parâmetros**:
-  - `csvContent`: Conteúdo do arquivo CSV como string
+## Available Tools
 
-## 📊 Estrutura dos Dados
+### 1. GET_PASSENGERS
+Retrieve passenger data with optional filtering:
+- Filter by flight number, departure/arrival city, ticket class, or status
+- Apply result limits
+- Returns clean, normalized data matching CSV structure
 
-### Tabela de Passageiros
-- **Campos obrigatórios**: firstName, lastName, email, flightNumber, departureCity, arrivalCity, departureDate
-- **Campos opcionais**: phone, passportNumber, nationality, dateOfBirth, seatNumber, ticketClass, price, status
-- **Valores padrão**: status = "confirmed", createdAt = timestamp atual
+### 2. POPULATE_TEST_DATA
+Populate database with sample passenger data:
+- Automatically generates flight numbers
+- Sets default values for optional fields
+- Prevents duplicate population
 
-### Exemplo de CSV
+### 3. CLEAR_DATABASE
+Remove all passenger data from the database:
+- Safe operation with confirmation
+- Returns count of deleted records
+
+## CSV Format
+
+The system expects CSV files with the following columns:
 ```csv
-firstName,lastName,email,phone,passportNumber,nationality,dateOfBirth,seatNumber,flightNumber,departureCity,arrivalCity,departureDate,ticketClass,price,status
-João,Silva,joao.silva@email.com,+55 11 99999-1111,BR123456,brasileiro,1985-03-15,12A,LA1234,São Paulo,Los Angeles,2024-01-15,economy,2500.00,confirmed
+firstName,lastName,email,nationality,dateOfBirth,departureCity,arrivalCity,departureDate,distance,flightCost
 ```
 
-## 🛠️ Como Usar
+### Sample Data
+- **Brazilian Routes**: São Paulo → Rio de Janeiro, Brasília → Salvador, etc.
+- **Realistic Data**: Actual distances and estimated flight costs
 
-### 1. Popular com Dados de Teste
-```typescript
-// Primeiro, execute esta tool para inserir dados de teste
-const result = await client.POPULATE_TEST_DATA({});
-console.log(result.message); // "Successfully populated database with 10 test passengers"
+## Development
+
+### Prerequisites
+- Node.js >=18.0.0
+- npm >=8.0.0
+- Deno >=2.0.0
+
+### Setup
+```bash
+# Install dependencies
+npm install
+
+# Configure the app
+npm run configure
+
+# Start development server
+npm run dev
+
+# Generate types
+npm run gen
+
+# Deploy to production
+npm run deploy
 ```
 
-### 2. Buscar Todos os Passageiros
-```typescript
-const result = await client.GET_PASSENGERS({});
-console.log(`Total de passageiros: ${result.totalCount}`);
-console.log(result.passengers);
-```
+### Architecture
+- **Backend**: Deco MCP server with Cloudflare Workers
+- **Database**: SQLite with Drizzle ORM
+- **Frontend**: React with TanStack Router and Query
+- **Styling**: Tailwind CSS with shadcn/ui components
 
-### 3. Filtrar Passageiros
-```typescript
-// Buscar apenas passageiros da classe economy
-const economyPassengers = await client.GET_PASSENGERS({ 
-  ticketClass: "economy" 
-});
+## API Endpoints
 
-// Buscar passageiros de um voo específico
-const flightPassengers = await client.GET_PASSENGERS({ 
-  flightNumber: "LA1234" 
-});
+- `GET /mcp` - MCP server endpoints
+- `GET /` - React frontend application
 
-// Limitar resultados
-const limitedPassengers = await client.GET_PASSENGERS({ 
-  limit: 5 
-});
-```
+## Database Migrations
 
-### 4. Obter Estatísticas
-```typescript
-const stats = await client.GET_PASSENGER_STATS({});
-console.log(`Total de passageiros: ${stats.totalPassengers}`);
-console.log(`Distribuição por classe:`, stats.byTicketClass);
-console.log(`Preço médio: R$ ${stats.averagePrice}`);
-```
+Migrations are automatically applied when using `getDb(env)`. No manual migration commands needed.
 
-### 5. Importar CSV Personalizado
-```typescript
-const csvContent = `firstName,lastName,email,flightNumber,departureCity,arrivalCity,departureDate
-João,Silva,joao@email.com,BR123,São Paulo,Rio de Janeiro,2024-02-01`;
+## Error Handling
 
-const result = await client.IMPORT_PASSENGERS_FROM_CSV({
-  csvContent: csvContent
-});
-```
+- Comprehensive error handling with meaningful messages
+- Timeout protection for long-running operations
+- Batch processing for large data imports
+- Transaction support for data integrity
 
-## 🔧 Desenvolvimento
+## Performance
 
-### Comandos Disponíveis
-- `npm run dev` - Inicia o servidor de desenvolvimento
-- `npm run gen` - Gera tipos para integrações externas
-- `npm run gen:self` - Gera tipos para suas próprias tools (requer servidor rodando)
-- `npm run deploy` - Deploy para produção
+- Batch processing with configurable batch sizes
+- Database transactions for bulk operations
+- Optimized queries with proper indexing
+- 5-minute timeout configuration for long operations
 
-### Estrutura do Projeto
-- `/server` - Servidor MCP (Cloudflare Workers + Deco)
-- `/view` - Frontend React com Tailwind CSS
-- `/server/schema.ts` - Schema do banco de dados
-- `/server/tools.ts` - Definição das tools
-- `/server/sample-passengers.csv` - Arquivo CSV de exemplo
+## Contributing
 
-## 📝 Notas Importantes
+1. Follow the established code patterns
+2. Use helper functions for complex operations
+3. Maintain consistent error handling
+4. Update documentation for new features
+5. Test thoroughly before deployment
 
-1. **Sempre execute `POPULATE_TEST_DATA` primeiro** para ter dados para testar
-2. **As migrações são aplicadas automaticamente** quando você usa `getDb(env)`
-3. **Use filtros em memória** para simplicidade (adequado para datasets pequenos)
-4. **O banco usa SQLite** com Drizzle ORM para persistência
+## License
 
-## 🚨 Solução de Problemas
-
-### Erro "No passengers found in database"
-- Execute `POPULATE_TEST_DATA` primeiro
-- Verifique se a migração foi aplicada corretamente
-
-### Erro de Schema
-- Execute `npm run db:generate` após modificar `schema.ts`
-- Reinicie o servidor após mudanças no schema
-
-### Problemas de Tipo
-- Execute `npm run gen:self` após adicionar novas tools
-- Verifique se todas as tools estão incluídas no array `tools`
+This project is part of the Deco MCP template system.
