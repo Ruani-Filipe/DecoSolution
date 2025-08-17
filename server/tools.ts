@@ -231,6 +231,14 @@ export const createGetPassengersTool = (env: Env) =>
           id: z.number(),
           firstName: z.string(),
           lastName: z.string(),
+          phone: z.string().nullable(),
+          passportNumber: z.string().nullable(),
+          seatNumber: z.string().nullable(),
+          flightNumber: z.string().nullable(),
+          ticketClass: z.string().nullable(),
+          price: z.string().nullable(),
+          status: z.string().nullable(),
+          createdAt: z.string().nullable(),
           email: z.string(),
           nationality: z.string(),
           dateOfBirth: z.string(),
@@ -666,9 +674,154 @@ River,Roberts,river.roberts@email.com,American,1989-05-03,Maceió,Recife,2027-04
     return importedCount;
   };
 
+  export const createImportPassengersFromCSVTool = (env: Env) =>
+    createTool({
+      id: "IMPORT_PASSENGERS_FROM_CSV",
+      description: "Import passenger data from CSV file into the database",
+      inputSchema: z.object({
+        csvContent: z.string().describe("CSV content as string"),
+      }),
+      outputSchema: z.object({
+        success: z.boolean(),
+        importedCount: z.number(),
+        message: z.string(),
+      }),
+      execute: async ({ context }) => {
+        try {
+          const db = await getDb(env);
+          
+          // Parse CSV content
+          const lines = context.csvContent.trim().split('\n');
+          const headers = lines[0].split(',');
+          const dataLines = lines.slice(1);
+          
+          let importedCount = 0;
+          
+          for (const line of dataLines) {
+            if (line.trim()) {
+              const values = line.split(',');
+              const passengerData = {
+                firstName: values[0] || '',
+                lastName: values[1] || '',
+                email: values[2] || '',
+                phone: values[3] || null,
+                passportNumber: values[4] || null,
+                nationality: values[5] || null,
+                dateOfBirth: values[6] || null,
+                seatNumber: values[7] || null,
+                flightNumber: values[8] || '',
+                departureCity: values[9] || '',
+                arrivalCity: values[10] || '',
+                departureDate: values[11] || '',
+                ticketClass: values[12] || null,
+                price: values[13] || null,
+                status: values[14] || 'confirmed',
+              };
+              
+              await db.insert(passengersTable).values(passengerData);
+              importedCount++;
+            }
+          }
+          
+          return {
+            success: true,
+            importedCount,
+            message: `Successfully imported ${importedCount} passengers from CSV`,
+          };
+        } catch (error) {
+          console.error('Error importing CSV:', error);
+          return {
+            success: false,
+            importedCount: 0,
+            message: `Error importing CSV: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          };
+        }
+      },
+    });
+
+    export const createGetPassengerStatsTool = (env: Env) =>
+      createTool({
+        id: "GET_PASSENGER_STATS",
+        description: "Get statistics about passengers in the database",
+        inputSchema: z.object({}),
+        outputSchema: z.object({
+          totalPassengers: z.number(),
+          byTicketClass: z.record(z.number()),
+          byStatus: z.record(z.number()),
+          byFlight: z.record(z.number()),
+          averagePrice: z.number(),
+          message: z.string(),
+        }),
+        execute: async () => {
+          try {
+            const db = await getDb(env);
+            
+            // Get all passengers for analysis
+            const allPassengers = await db.select().from(passengersTable);
+            
+            if (allPassengers.length === 0) {
+              return {
+                totalPassengers: 0,
+                byTicketClass: {},
+                byStatus: {},
+                byFlight: {},
+                averagePrice: 0,
+                message: "No passengers found in database",
+              };
+            }
+            
+            // Calculate statistics
+            const byTicketClass: Record<string, number> = {};
+            const byStatus: Record<string, number> = {};
+            const byFlight: Record<string, number> = {};
+            let totalPrice = 0;
+            let validPrices = 0;
+            
+            for (const passenger of allPassengers) {
+              // Count by status
+              const status = passenger.status || 'unknown';
+              byStatus[status] = (byStatus[status] || 0) + 1;
+              
+              // Count by flight
+              const flight = passenger.flightNumber || 'unknown';
+              byFlight[flight] = (byFlight[flight] || 0) + 1;
+              
+              // Calculate average price
+              if (passenger.price) {
+                const price = parseFloat(passenger.price);
+                if (!isNaN(price)) {
+                  totalPrice += price;
+                  validPrices++;
+                }
+              }
+            }
+            
+            const averagePrice = validPrices > 0 ? totalPrice / validPrices : 0;
+            
+            return {
+              totalPassengers: allPassengers.length,
+              byTicketClass,
+              byStatus,
+              byFlight,
+              averagePrice: Math.round(averagePrice * 100) / 100, // Round to 2 decimal places
+              message: `Statistics calculated for ${allPassengers.length} passengers`,
+            };
+          } catch (error) {
+            console.error('Error calculating passenger stats:', error);
+            throw new Error(`Error calculating passenger stats: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
+        },
+      });
+
 export const tools = [
   createGetUserTool,
+  createListTodosTool,
+  createGenerateTodoWithAITool,
+  createToggleTodoTool,
+  createDeleteTodoTool,
   createGetPassengersTool,
   createClearDatabaseTool,
   createPopulateTestDataTool,
+  createImportPassengersFromCSVTool,
+  createGetPassengerStatsTool,
 ];

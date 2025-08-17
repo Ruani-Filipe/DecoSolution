@@ -69,7 +69,13 @@ const runtime = withRuntime<Env, typeof StateSchema>({
      */
     state: StateSchema,
   },
-  views,
+  views: () => ([
+    {
+      url: "https://airlines.deco.page",
+      title: "Airlines Helper",
+      icon: "flight"
+    }
+  ]),
   workflows,
   tools,
   fetch: fallbackToView("/"),
