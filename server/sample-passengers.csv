@@ -1,0 +1,11 @@
+firstName,lastName,email,phone,passportNumber,nationality,dateOfBirth,seatNumber,flightNumber,departureCity,arrivalCity,departureDate,ticketClass,price,status
+João,Silva,joao.silva@email.com,+55 11 99999-1111,BR123456,brasileiro,1985-03-15,12A,LA1234,São Paulo,Los Angeles,2024-01-15,economy,2500.00,confirmed
+Maria,Santos,maria.santos@email.com,+55 21 88888-2222,BR789012,brasileira,1990-07-22,15B,LA1234,São Paulo,Los Angeles,2024-01-15,business,4500.00,confirmed
+Carlos,Oliveira,carlos.oliveira@email.com,+55 31 77777-3333,BR345678,brasileiro,1988-11-08,18C,LA1234,São Paulo,Los Angeles,2024-01-15,economy,2500.00,confirmed
+Ana,Costa,ana.costa@email.com,+55 41 66666-4444,BR901234,brasileira,1992-04-30,22D,LA1234,São Paulo,Los Angeles,2024-01-15,economy,2500.00,confirmed
+Pedro,Ferreira,pedro.ferreira@email.com,+55 51 55555-5555,BR567890,brasileiro,1983-09-12,25E,LA1234,São Paulo,Los Angeles,2024-01-15,first,6500.00,confirmed
+Lucia,Ribeiro,lucia.ribeiro@email.com,+55 61 44444-6666,BR234567,brasileira,1987-12-05,28F,LA1234,São Paulo,Los Angeles,2024-01-15,economy,2500.00,confirmed
+Roberto,Almeida,roberto.almeida@email.com,+55 71 33333-7777,BR890123,brasileiro,1981-06-18,31G,LA1234,São Paulo,Los Angeles,2024-01-15,business,4500.00,confirmed
+Fernanda,Lima,fernanda.lima@email.com,+55 81 22222-8888,BR456789,brasileira,1995-01-25,34H,LA1234,São Paulo,Los Angeles,2024-01-15,economy,2500.00,confirmed
+Marcos,Pereira,marcos.pereira@email.com,+55 91 11111-9999,BR012345,brasileiro,1986-08-14,37I,LA1234,São Paulo,Los Angeles,2024-01-15,economy,2500.00,confirmed
+Juliana,Martins,juliana.martins@email.com,+55 11 00000-0000,BR678901,brasileira,1993-05-20,40J,LA1234,São Paulo,Los Angeles,2024-01-15,business,4500.00,confirmed

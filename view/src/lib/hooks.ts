@@ -133,3 +133,53 @@ export const useDeleteTodo = () => {
     },
   });
 };
+
+// Passenger-related hooks
+export const usePopulateTestData = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: () => client.POPULATE_TEST_DATA({}),
+    onSuccess: () => {
+      // Invalidate passenger queries after populating data
+      queryClient.invalidateQueries({ queryKey: ["passengers"] });
+      queryClient.invalidateQueries({ queryKey: ["passengerStats"] });
+    },
+  });
+};
+
+export const useGetPassengers = (filters?: {
+  flightNumber?: string;
+  departureCity?: string;
+  arrivalCity?: string;
+  ticketClass?: string;
+  status?: string;
+  limit?: number;
+}) => {
+  return useQuery({
+    queryKey: ["passengers", filters],
+    queryFn: () => client.GET_PASSENGERS(filters || {}),
+    enabled: true, // Always enabled
+  });
+};
+
+export const useGetPassengerStats = () => {
+  return useQuery({
+    queryKey: ["passengerStats"],
+    queryFn: () => client.GET_PASSENGER_STATS({}),
+  });
+};
+
+export const useImportPassengersFromCSV = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (csvContent: string) => 
+      client.IMPORT_PASSENGERS_FROM_CSV({ csvContent }),
+    onSuccess: () => {
+      // Invalidate passenger queries after importing data
+      queryClient.invalidateQueries({ queryKey: ["passengers"] });
+      queryClient.invalidateQueries({ queryKey: ["passengerStats"] });
+    },
+  });
+};

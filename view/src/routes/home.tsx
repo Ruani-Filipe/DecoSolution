@@ -250,6 +250,27 @@ function HomePage() {
           </div>
         </div>
 
+        {/* Airlines Demo Section */}
+        <div className="mt-8 pt-6 border-t border-slate-700">
+          <div className="text-center">
+            <h2 className="text-lg font-medium text-white mb-3">
+              🛩️ Airlines Passenger Management Demo
+            </h2>
+            <p className="text-sm text-slate-400 mb-4">
+              Test the new passenger database tools with sample data
+            </p>
+            <Button
+              asChild
+              size="sm"
+              className="bg-blue-600 text-white hover:bg-blue-500 border-blue-500"
+            >
+              <Link to="/passengers-demo">
+                View Passengers Demo
+              </Link>
+            </Button>
+          </div>
+        </div>
+
         {/* Footer */}
         <div className="mt-12 pt-6 border-t border-slate-700">
           <p className="text-xs text-slate-500 text-center">

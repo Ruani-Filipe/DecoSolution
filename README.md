@@ -1,90 +1,133 @@
-# Deco MCP app
+# Airlines MCP Server
 
-A full-stack template for building
-[Model Context Protocol (MCP)](https://spec.modelcontextprotocol.io/) servers
-with a modern React frontend. This template provides a complete development
-environment where your MCP server not only exposes tools and workflows to AI
-agents but also serves a beautiful web interface built with React and Tailwind
-CSS.
+Este é um servidor MCP (Model Context Protocol) para gerenciamento de dados de companhias aéreas, construído com Deco.chat, Cloudflare Workers e React.
 
-## ✨ Features
+## 🚀 Funcionalidades
 
-- **🤖 MCP Server**: Cloudflare Workers-based server with typed tools and
-  workflows
-- **⚛️ React Frontend**: Modern React app with Vite, TanStack Router, and
-  Tailwind CSS
-- **🎨 UI Components**: Pre-configured shadcn/ui components for rapid
-  development
-- **🔧 Type Safety**: Full TypeScript support with auto-generated RPC client
-  types
-- **🚀 Hot Reload**: Live development with automatic rebuilding for both
-  frontend and backend
-- **☁️ Ready to Deploy**: One-command deployment to Cloudflare Workers
+### Tools Disponíveis
 
-## 🚀 Quick Start
+#### 1. **POPULATE_TEST_DATA**
+- **Descrição**: Popula o banco de dados com dados de teste de passageiros
+- **Parâmetros**: Nenhum
+- **Uso**: Execute esta tool primeiro para inserir dados de teste no banco
 
-### Prerequisites
+#### 2. **GET_PASSENGERS**
+- **Descrição**: Retorna dados de passageiros do banco de dados com filtros opcionais
+- **Parâmetros**:
+  - `flightNumber` (opcional): Filtrar por número do voo
+  - `departureCity` (opcional): Filtrar por cidade de partida
+  - `arrivalCity` (opcional): Filtrar por cidade de chegada
+  - `ticketClass` (opcional): Filtrar por classe da passagem
+  - `status` (opcional): Filtrar por status
+  - `limit` (opcional): Limitar número de resultados
 
-- Node.js ≥22.0.0
-- [Deco CLI](https://deco.chat): `npm i -g deco-cli`
+#### 3. **GET_PASSENGER_STATS**
+- **Descrição**: Retorna estatísticas sobre os passageiros no banco
+- **Parâmetros**: Nenhum
+- **Retorna**: Contagem total, distribuição por classe, status, voo e preço médio
 
-### Setup
+#### 4. **IMPORT_PASSENGERS_FROM_CSV**
+- **Descrição**: Importa dados de passageiros de um arquivo CSV
+- **Parâmetros**:
+  - `csvContent`: Conteúdo do arquivo CSV como string
 
-```bash
-# Install dependencies
-npm install
+## 📊 Estrutura dos Dados
 
-# Configure your app
-npm run configure
+### Tabela de Passageiros
+- **Campos obrigatórios**: firstName, lastName, email, flightNumber, departureCity, arrivalCity, departureDate
+- **Campos opcionais**: phone, passportNumber, nationality, dateOfBirth, seatNumber, ticketClass, price, status
+- **Valores padrão**: status = "confirmed", createdAt = timestamp atual
 
-# Start development server
-npm run dev
+### Exemplo de CSV
+```csv
+firstName,lastName,email,phone,passportNumber,nationality,dateOfBirth,seatNumber,flightNumber,departureCity,arrivalCity,departureDate,ticketClass,price,status
+João,Silva,joao.silva@email.com,+55 11 99999-1111,BR123456,brasileiro,1985-03-15,12A,LA1234,São Paulo,Los Angeles,2024-01-15,economy,2500.00,confirmed
 ```
 
-The server will start on `http://localhost:8787` serving both your MCP endpoints
-and the React frontend.
+## 🛠️ Como Usar
 
-## 📁 Project Structure
-
-```
-├── server/           # MCP Server (Cloudflare Workers + Deco runtime)
-│   ├── main.ts      # Server entry point with tools & workflows
-│   └── deco.gen.ts  # Auto-generated integration types
-└── view/            # React Frontend (Vite + Tailwind CSS)
-    ├── src/
-    │   ├── lib/rpc.ts    # Typed RPC client for server communication
-    │   ├── routes/       # TanStack Router routes
-    │   └── components/   # UI components with Tailwind CSS
-    └── package.json
-```
-
-## 🛠️ Development Workflow
-
-- **`npm run dev`** - Start development with hot reload
-- **`npm run gen`** - Generate types for external integrations
-- **`npm run gen:self`** - Generate types for your own tools/workflows
-- **`npm run deploy`** - Deploy to production
-
-## 🔗 Frontend ↔ Server Communication
-
-The template includes a fully-typed RPC client that connects your React frontend
-to your MCP server:
-
+### 1. Popular com Dados de Teste
 ```typescript
-// Typed calls to your server tools and workflows
-const result = await client.MY_TOOL({ input: "data" });
-const workflowResult = await client.MY_WORKFLOW({ input: "data" });
+// Primeiro, execute esta tool para inserir dados de teste
+const result = await client.POPULATE_TEST_DATA({});
+console.log(result.message); // "Successfully populated database with 10 test passengers"
 ```
 
-## 📖 Learn More
+### 2. Buscar Todos os Passageiros
+```typescript
+const result = await client.GET_PASSENGERS({});
+console.log(`Total de passageiros: ${result.totalCount}`);
+console.log(result.passengers);
+```
 
-This template is built for deploying primarily on top of the
-[Deco platform](https://deco.chat/about) which can be found at the
-[deco-cx/chat](https://github.com/deco-cx/chat) repository.
+### 3. Filtrar Passageiros
+```typescript
+// Buscar apenas passageiros da classe economy
+const economyPassengers = await client.GET_PASSENGERS({ 
+  ticketClass: "economy" 
+});
 
-Documentation can be found at [https://docs.deco.page](https://docs.deco.page)
+// Buscar passageiros de um voo específico
+const flightPassengers = await client.GET_PASSENGERS({ 
+  flightNumber: "LA1234" 
+});
 
----
+// Limitar resultados
+const limitedPassengers = await client.GET_PASSENGERS({ 
+  limit: 5 
+});
+```
 
-**Ready to build your next MCP server with a beautiful frontend?
-[Get started now!](https://deco.chat)**
+### 4. Obter Estatísticas
+```typescript
+const stats = await client.GET_PASSENGER_STATS({});
+console.log(`Total de passageiros: ${stats.totalPassengers}`);
+console.log(`Distribuição por classe:`, stats.byTicketClass);
+console.log(`Preço médio: R$ ${stats.averagePrice}`);
+```
+
+### 5. Importar CSV Personalizado
+```typescript
+const csvContent = `firstName,lastName,email,flightNumber,departureCity,arrivalCity,departureDate
+João,Silva,joao@email.com,BR123,São Paulo,Rio de Janeiro,2024-02-01`;
+
+const result = await client.IMPORT_PASSENGERS_FROM_CSV({
+  csvContent: csvContent
+});
+```
+
+## 🔧 Desenvolvimento
+
+### Comandos Disponíveis
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run gen` - Gera tipos para integrações externas
+- `npm run gen:self` - Gera tipos para suas próprias tools (requer servidor rodando)
+- `npm run deploy` - Deploy para produção
+
+### Estrutura do Projeto
+- `/server` - Servidor MCP (Cloudflare Workers + Deco)
+- `/view` - Frontend React com Tailwind CSS
+- `/server/schema.ts` - Schema do banco de dados
+- `/server/tools.ts` - Definição das tools
+- `/server/sample-passengers.csv` - Arquivo CSV de exemplo
+
+## 📝 Notas Importantes
+
+1. **Sempre execute `POPULATE_TEST_DATA` primeiro** para ter dados para testar
+2. **As migrações são aplicadas automaticamente** quando você usa `getDb(env)`
+3. **Use filtros em memória** para simplicidade (adequado para datasets pequenos)
+4. **O banco usa SQLite** com Drizzle ORM para persistência
+
+## 🚨 Solução de Problemas
+
+### Erro "No passengers found in database"
+- Execute `POPULATE_TEST_DATA` primeiro
+- Verifique se a migração foi aplicada corretamente
+
+### Erro de Schema
+- Execute `npm run db:generate` após modificar `schema.ts`
+- Reinicie o servidor após mudanças no schema
+
+### Problemas de Tipo
+- Execute `npm run gen:self` após adicionar novas tools
+- Verifique se todas as tools estão incluídas no array `tools`
